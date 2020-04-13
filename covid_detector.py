@@ -18,11 +18,8 @@ def upload_file():
 def upload_image():
    if request.method == 'POST':
    	image = request.files['file']
-   	#print(image.read())
-   	#i = cv2.imread()
-   	#print(i)
    	img = cv2.imdecode(np.fromstring(image.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-   	#print(img)
+   	print(img)
    	json_file = open('./covid_hackathon.json', 'r')
    	loaded_model_json = json_file.read()
    	json_file.close()
@@ -31,18 +28,13 @@ def upload_image():
    	predict_image = [cv2.resize(img, (224, 224)).astype('float32')]
    	predict_image = np.array(predict_image)
    	pred = loaded_model.predict(predict_image)
-   # print(pred[0].index(max(pred[0])))
    if np.argmax(pred[0], axis=None)==0:
    	covid_result = 'Negative'
    else:
    	covid_result = 'Positive'
-   	image_string = base64.b64encode(image.decode('ascii'))
-
-   	return render_template('prediction.html', result=image_string, covid_result='positive')
- #   	image = request.files['image']  
-	# image_string = base64.b64encode(image.read())
-	# return render_template('prediction.html',result=image_string, coivd_result='positive')
-
+   image_string = base64.b64encode(image.read()).decode('ascii')
+   return render_template('prediction.html', result=image_string, covid_result=covid_result)
+ 
 @app.route('/')
 def home():
 	return render_template('covid_detector.html')
